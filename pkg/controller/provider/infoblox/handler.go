@@ -193,9 +193,15 @@ func (h *Handler) getZones(cache provider.ZoneCache) (provider.DNSHostedZones, e
 		return nil, err
 	}
 
+	whitelistedZones := h.config.Options.AdvancedOptions.GetWhitelistedZones()
 	blockedZones := h.config.Options.AdvancedOptions.GetBlockedZones()
 	zones := provider.DNSHostedZones{}
 	for _, z := range raw {
+		if !whitelistedZones.Contains(z.Ref) {
+			h.config.Logger.Infof("ignoring non whitelisted zone id: %s", z.Ref)
+			continue
+		}
+
 		if blockedZones.Contains(z.Ref) {
 			h.config.Logger.Infof("ignoring blocked zone id: %s", z.Ref)
 			continue

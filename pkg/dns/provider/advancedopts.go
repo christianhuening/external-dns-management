@@ -31,9 +31,10 @@ type AdvancedConfig struct {
 ////////////////////////////////////////////////////////////////////////////////
 
 type AdvancedOptions struct {
-	BatchSize    int
-	MaxRetries   int
-	BlockedZones []string
+	BatchSize        int
+	MaxRetries       int
+	BlockedZones     []string
+	WhitelistedZones []string
 }
 
 var AdvancedOptionsDefaults = AdvancedOptions{
@@ -42,10 +43,11 @@ var AdvancedOptionsDefaults = AdvancedOptions{
 	BlockedZones: []string{},
 }
 
-func (this *AdvancedOptions) AddOptionsToSet(set config.OptionSet) {
-	set.AddIntOption(&this.BatchSize, OPT_ADVANCED_BATCH_SIZE, "", 50, "batch size for change requests (currently only used for aws-route53)")
-	set.AddIntOption(&this.MaxRetries, OPT_ADVANCED_MAX_RETRIES, "", 7, "maximum number of retries to avoid paging stops on throttling (currently only used for aws-route53)")
-	set.AddStringArrayOption(&this.BlockedZones, OPT_ADVANCED_BLOCKED_ZONE, "", []string{}, "Blocks a zone given in the format `zone-id` from a provider as if the zone is not existing.")
+func (c *AdvancedOptions) AddOptionsToSet(set config.OptionSet) {
+	set.AddIntOption(&c.BatchSize, OPT_ADVANCED_BATCH_SIZE, "", 50, "batch size for change requests (currently only used for aws-route53)")
+	set.AddIntOption(&c.MaxRetries, OPT_ADVANCED_MAX_RETRIES, "", 7, "maximum number of retries to avoid paging stops on throttling (currently only used for aws-route53)")
+	set.AddStringArrayOption(&c.BlockedZones, OPT_ADVANCED_BLOCKED_ZONE, "", []string{}, "Blocks a zone given in the format `zone-id` from a provider as if the zone is not existing.")
+	set.AddStringArrayOption(&c.WhitelistedZones, OPT_ADVANCED_WHITELISTED_ZONE, "", []string{}, "Whitelists a zone given in the format `zone-id` from a provider. Using this means only whitelisted and not blocked zones are included")
 }
 
 func (c *AdvancedOptions) GetAdvancedConfig() AdvancedConfig {
@@ -54,6 +56,10 @@ func (c *AdvancedOptions) GetAdvancedConfig() AdvancedConfig {
 
 func (c *AdvancedOptions) GetBlockedZones() utils.StringSet {
 	return utils.NewStringSet(c.BlockedZones...)
+}
+
+func (c *AdvancedOptions) GetWhitelistedZones() utils.StringSet {
+	return utils.NewStringSet(c.WhitelistedZones...)
 }
 
 // configuration helpers
